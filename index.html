@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>BetterThan4ButNot5 - The LLM Model Sorting Game</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="container">
+      <header>
+        <h1>Better Than 4 But Not 5</h1>
+        <p class="tagline">
+          Where "4.5" might be worse than "4.1" but better than "4o" (or is it?)
+        </p>
+      </header>
+
+      <section class="game-instructions">
+        <h2>How to Play</h2>
+        <p>
+          Drag and drop the AI model names to reorder them based on the target
+          criteria!
+        </p>
+
+        <div class="game-options">
+          <div class="select-container">
+            <label for="company-select">Select Company:</label>
+            <select id="company-select" class="game-select">
+              <option value="all">All Companies</option>
+              <option value="openai">OpenAI</option>
+              <option value="anthropic">Anthropic</option>
+              <option value="google">Google</option>
+            </select>
+          </div>
+
+          <div class="select-container">
+            <label for="criteria-select">Select Target Criteria:</label>
+            <select id="criteria-select" class="game-select">
+              <option value="release">Release Date (Newest First)</option>
+              <option value="cost">Input Cost (Cheapest First)</option>
+              <option value="arena">Arena Score (Highest First)</option>
+            </select>
+          </div>
+        </div>
+      </section>
+
+      <section class="game-area">
+        <div class="models-container">
+          <h3>Reorder Models (Drag to Rearrange):</h3>
+          <div id="models-list" class="models-list">
+            <!-- Models will be dynamically inserted here -->
+          </div>
+        </div>
+
+        <div id="result-message" class="result-message hidden">
+          <!-- Result message will appear here -->
+        </div>
+
+        <div class="game-controls">
+          <button id="check-btn" class="btn">Check Order</button>
+          <button id="reset-btn" class="btn">Reset</button>
+          <button id="toggle-data-btn" class="btn">Show Data</button>
+        </div>
+      </section>
+
+      <section class="target-criteria-info">
+        <h2>Regarding Target Criteria</h2>
+        <div class="info-content">
+          <p>
+            The confusion doesn't stop at the model name. Models are updated
+            over time, prices are lowered, and models may be announced or have
+            preview periods long before they reach general availability.
+          </p>
+          <p>
+            Release Date and Cost intend to be for first day of API general
+            availability. The archives of
+            <a href="https://simonwillison.net/" target="_blank"
+              >Simon Willison's Weblog</a
+            >
+            and the history of his
+            <a
+              href="https://github.com/simonw/tools/commits/main/llm-prices.html"
+              target="_blank"
+              >LLM Prices</a
+            >
+            were incredibly helpful in trying to find this information.
+          </p>
+          <p>
+            Arena Score is the
+            <a href="https://lmarena.ai/?leaderboard" target="_blank"
+              >LMArena Score</a
+            >
+            for the model as of 4/15/2025. If multiple versions were present, I
+            opted for the oldest (ie. closest to original release) model. For
+            example, "GPT-3.5 Turbo" is the gpt-3.5-turbo-1106 score.
+          </p>
+        </div>
+      </section>
+
+      <footer>
+        <p>
+          &copy; 2025 William Pittman - A humorous look at the chaos of AI model
+          naming conventions
+        </p>
+        <p>
+          <a
+            href="https://github.com/wspittman/BetterThan4ButNot5"
+            target="_blank"
+            >View on GitHub</a
+          >
+        </p>
+      </footer>
+    </div>
+
+    <script src="script.js"></script>
+  </body>
+</html>
