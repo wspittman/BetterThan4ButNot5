@@ -1,10 +1,12 @@
-document.addEventListener("DOMContentLoaded", function () {
-  function toModelObject([name, release, cost, arena], company) {
-    return { name, company, release, cost, arena };
-  }
+// #region model sets
 
-  // Model arrays: [Name, Release Date, $/M input cost, LM Arena Score as of 4/15/2025]
-  const modelsOpenAI = [
+function toModelObject([name, release, cost, arena], company) {
+  return { name, company, release, cost, arena };
+}
+
+// Model arrays: [Name, Release Date, $/M input cost, LM Arena Score as of 4/15/2025]
+const modelData = {
+  openai: [
     ["GPT-3.5 Turbo", "2023-03-01", 2, 1068],
     ["GPT-4", "2023-03-14", 30, 1163],
     ["GPT-4 Turbo", "2024-04-09", 10, 1256],
@@ -18,17 +20,15 @@ document.addEventListener("DOMContentLoaded", function () {
     ["GPT-4.1 Nano", "2025-04-14", 0.1, 0],
     ["GPT-4.1 Mini", "2025-04-14", 0.4, 0],
     ["GPT-4.1", "2025-04-14", 2, 0],
-  ].map((m) => toModelObject(m, "openai"));
-
-  const modelsGoogle = [
+  ].map((m) => toModelObject(m, "openai")),
+  google: [
     ["Gemini 1.5 Pro", "2024-04-10", 7, 1260],
     ["Gemini 1.5 Flash", "2024-05-14", 0.075, 1227],
     ["Gemini 2.0 Flash", "2025-02-05", 0.1, 1354],
     ["Gemini 2.0 Flash Lite", "2025-02-25", 0.075, 1310],
     ["Gemini 2.5 Pro Preview", "2025-03-25", 1.25, 1380],
-  ].map((m) => toModelObject(m, "google"));
-
-  const modelsAnthropic = [
+  ].map((m) => toModelObject(m, "google")),
+  anthropic: [
     ["Claude 2.1", "2023-11-21", 8, 0],
     ["Claude 3 Haiku", "2024-03-04", 0.25, 1179],
     ["Claude 3 Sonnet", "2024-03-04", 3, 1201],
@@ -36,11 +36,40 @@ document.addEventListener("DOMContentLoaded", function () {
     ["Claude 3.5 Sonnet", "2024-06-20", 3, 1268],
     ["Claude 3.5 Haiku", "2024-11-04", 1, 1237],
     ["Claude 3.7 Sonnet", "2025-02-24", 3, 1297],
-  ].map((m) => toModelObject(m, "anthropic"));
+  ].map((m) => toModelObject(m, "anthropic")),
+};
 
+function getPreppedModels(company, criteria) {
+  let models = modelData[company] ?? [
+    ...modelData.openai,
+    ...modelData.google,
+    ...modelData.anthropic,
+  ];
+
+  // This also shallow copies so the sorts don't affect the original
+  models = models.filter((model) => !!model[criteria]);
+
+  if (criteria === "release") {
+    // For release date, newer is better (higher date value)
+    models.sort((a, b) => new Date(b.release) - new Date(a.release));
+  } else if (criteria === "arena") {
+    // For arena score, higher is better
+    models.sort((a, b) => b.arena - a.arena);
+  } else {
+    // For cost, lower is better
+    models.sort((a, b) => a.cost - b.cost);
+  }
+
+  return models;
+}
+
+// #endregion
+
+document.addEventListener("DOMContentLoaded", function () {
   let currentCriteria = "release";
   let currentCompany = "all";
   let showModelDetails = false;
+  let gameModels = []; // Store the current sorted models
 
   const modelsList = document.getElementById("models-list");
   const checkButton = document.getElementById("check-btn");
@@ -48,34 +77,6 @@ document.addEventListener("DOMContentLoaded", function () {
   const resultMessage = document.getElementById("result-message");
   const companySelect = document.getElementById("company-select");
   const criteriaSelect = document.getElementById("criteria-select");
-
-  // Filter models based on selected company
-  function getFilteredModels() {
-    let models;
-
-    // First get models based on company
-    switch (currentCompany) {
-      case "openai":
-        models = modelsOpenAI;
-        break;
-      case "google":
-        models = modelsGoogle;
-        break;
-      case "anthropic":
-        models = modelsAnthropic;
-        break;
-      default:
-        models = [...modelsOpenAI, ...modelsGoogle, ...modelsAnthropic];
-    }
-
-    // Then filter by criteria if needed
-    if (currentCriteria === "arena") {
-      // Filter out models with arena score of 0
-      return models.filter((model) => model.arena > 0);
-    }
-
-    return models;
-  }
 
   // Format cost to be more readable
   function formatCost(cost) {
@@ -100,11 +101,14 @@ document.addEventListener("DOMContentLoaded", function () {
     resultMessage.innerHTML = "";
     resultMessage.className = "result-message hidden";
 
-    // Get filtered models based on current company
-    const filteredModels = getFilteredModels();
+    // Get models using getPreppedModels
+    gameModels = getPreppedModels(
+      currentCompany !== "all" ? currentCompany : null,
+      currentCriteria
+    );
 
     // Shuffle model data for initial display
-    const shuffledModels = [...filteredModels].sort(() => Math.random() - 0.5);
+    const shuffledModels = [...gameModels].sort(() => Math.random() - 0.5);
 
     // Create model items
     shuffledModels.forEach((model) => {
@@ -457,9 +461,8 @@ document.addEventListener("DOMContentLoaded", function () {
   // Check if the current order is correct
   function checkOrder() {
     const modelItems = [...modelsList.querySelectorAll(".model-item")];
-    const filteredModels = getFilteredModels();
 
-    if (modelItems.length < filteredModels.length) {
+    if (modelItems.length < gameModels.length) {
       showResult(
         "Something went wrong. Please refresh and try again.",
         "incorrect"
@@ -470,31 +473,14 @@ document.addEventListener("DOMContentLoaded", function () {
     const userOrderedModels = modelItems.map((item) => {
       const modelName = item.dataset.name;
       const modelCompany = item.dataset.company;
-      return filteredModels.find(
+      return gameModels.find(
         (model) => model.name === modelName && model.company === modelCompany
       );
     });
 
-    // Get the correct order for the current criteria
-    let correctOrder;
-
-    // Handle ordering based on the selected criteria
-    if (currentCriteria === "arena") {
-      // For arena score, higher is better
-      correctOrder = [...filteredModels].sort(
-        (a, b) => b[currentCriteria] - a[currentCriteria]
-      );
-    } else if (currentCriteria === "cost") {
-      // For cost, lower is better
-      correctOrder = [...filteredModels].sort(
-        (a, b) => a[currentCriteria] - b[currentCriteria]
-      );
-    } else if (currentCriteria === "release") {
-      // For release date, compare ISO strings
-      correctOrder = [...filteredModels].sort(
-        (a, b) => new Date(b[currentCriteria]) - new Date(a[currentCriteria])
-      );
-    }
+    // The correct order is already in gameModels, since getPreppedModels sorts them
+    // We just need to make a copy to avoid modifying the original
+    const correctOrder = [...gameModels];
 
     // Add direction indicators to help the user
     addDirectionIndicators(userOrderedModels, correctOrder);
