@@ -51,16 +51,30 @@ document.addEventListener("DOMContentLoaded", function () {
 
   // Filter models based on selected company
   function getFilteredModels() {
+    let models;
+
+    // First get models based on company
     switch (currentCompany) {
       case "openai":
-        return modelsOpenAI;
+        models = modelsOpenAI;
+        break;
       case "google":
-        return modelsGoogle;
+        models = modelsGoogle;
+        break;
       case "anthropic":
-        return modelsAnthropic;
+        models = modelsAnthropic;
+        break;
       default:
-        return [...modelsOpenAI, ...modelsGoogle, ...modelsAnthropic];
+        models = [...modelsOpenAI, ...modelsGoogle, ...modelsAnthropic];
     }
+
+    // Then filter by criteria if needed
+    if (currentCriteria === "arena") {
+      // Filter out models with arena score of 0
+      return models.filter((model) => model.arena > 0);
+    }
+
+    return models;
   }
 
   // Format cost to be more readable
@@ -578,9 +592,16 @@ document.addEventListener("DOMContentLoaded", function () {
 
   // Add event listeners to the dropdown selectors
   criteriaSelect.addEventListener("change", function () {
+    const previousCriteria = currentCriteria;
     currentCriteria = this.value;
+
     // Hide any previous result when changing criteria
     resultMessage.className = "result-message hidden";
+
+    // Reinitialize if changing to or from arena (since available models may change)
+    if (previousCriteria === "arena" || currentCriteria === "arena") {
+      initGame();
+    }
   });
 
   companySelect.addEventListener("change", function () {
