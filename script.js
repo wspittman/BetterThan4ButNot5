@@ -44,7 +44,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
   const modelsList = document.getElementById("models-list");
   const checkButton = document.getElementById("check-btn");
-  const resetButton = document.getElementById("reset-btn");
   const toggleDataButton = document.getElementById("toggle-data-btn");
   const resultMessage = document.getElementById("result-message");
   const companySelect = document.getElementById("company-select");
@@ -475,7 +474,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
   // Event Listeners
   checkButton.addEventListener("click", checkOrder);
-  resetButton.addEventListener("click", initGame);
   toggleDataButton.addEventListener("click", toggleModelDetails);
 
   // Add event listeners to the dropdown selectors

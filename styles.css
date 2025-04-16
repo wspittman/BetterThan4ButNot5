@@ -139,14 +139,6 @@
   transition: all 0.3s;
 }
 
-#reset-btn {
-  background-color: #e74c3c;
-}
-
-#reset-btn:hover {
-  background-color: #c0392b;
-}
-
 /* Model Details */
 .model-details {
   font-size: 0.85rem;
