@@ -79,6 +79,19 @@ function getPreppedModels(company, criteria) {
     models.sort((a, b) => a.cost - b.cost);
   }
 
+  for (let i = 0; i < models.length; i++) {
+    for (let j = i; j < models.length; j++) {
+      if (models[i][criteria] === models[j][criteria]) {
+        models[i].upperIndex = j;
+      }
+    }
+    for (let j = i; j >= 0; j--) {
+      if (models[i][criteria] === models[j][criteria]) {
+        models[i].lowerIndex = j;
+      }
+    }
+  }
+
   return models;
 }
 
@@ -277,39 +290,23 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
 
-  // Add direction indicators to model items
-  function addDirectionIndicators(correctOrder) {
-    clearAllIndicators(); // Clear any existing indicators first
+  function addDirectionIndicator(element, index, lowerBound, upperBound) {
+    // Create indicator element
+    const indicator = document.createElement("div");
+    indicator.className = "indicator";
 
-    const modelItems = [...modelsList.querySelectorAll(".model-item")];
+    // Determine if the model should move up, down, or is in the correct position
+    if (index > upperBound) {
+      indicator.textContent = "↑"; // Should move up
+    } else if (index < lowerBound) {
+      indicator.textContent = "↓"; // Should move down
+    } else {
+      indicator.textContent = "✓"; // Correct position
+      indicator.classList.add("correct");
+    }
 
-    modelItems.forEach((item, index) => {
-      const modelName = item.dataset.name;
-
-      // Find the correct position for this model
-      const correctIndex = correctOrder.findIndex(
-        (model) => model.name === modelName
-      );
-
-      // Create indicator element
-      const indicator = document.createElement("div");
-      indicator.className = "indicator";
-
-      // Determine if the model should move up, down, or is in the correct position
-      if (correctIndex < index) {
-        indicator.textContent = "↑"; // Should move up
-        indicator.classList.add("up");
-      } else if (correctIndex > index) {
-        indicator.textContent = "↓"; // Should move down
-        indicator.classList.add("down");
-      } else {
-        indicator.textContent = "✓"; // Correct position
-        indicator.classList.add("correct");
-      }
-
-      // Add the indicator to the model item
-      item.appendChild(indicator);
-    });
+    // Add the indicator to the model item
+    element.appendChild(indicator);
   }
 
   // Get element to insert before when dragging (vertical ordering)
@@ -347,53 +344,23 @@ document.addEventListener("DOMContentLoaded", function () {
 
     const userOrderedModels = modelItems.map((item) => {
       const modelName = item.dataset.name;
-      return gameModels.find((model) => model.name === modelName);
+      return {
+        ...gameModels.find((model) => model.name === modelName),
+        element: item,
+      };
     });
 
     // The correct order is already in gameModels, since getPreppedModels sorts them
     // We just need to make a copy to avoid modifying the original
     const correctOrder = [...gameModels];
 
-    // Add direction indicators to help the user
-    addDirectionIndicators(correctOrder);
+    clearAllIndicators();
+    const score = calculateOrderingScore(userOrderedModels, correctOrder);
 
-    // Check if models are in correct order
-    let isCorrect = true;
-    for (let i = 0; i < userOrderedModels.length - 1; i++) {
-      if (currentCriteria === "cost") {
-        // For cost, lower is better
-        if (
-          userOrderedModels[i][currentCriteria] >
-          userOrderedModels[i + 1][currentCriteria]
-        ) {
-          isCorrect = false;
-          break;
-        }
-      } else if (currentCriteria === "arena") {
-        // For arena score, higher is better
-        if (
-          userOrderedModels[i][currentCriteria] <
-          userOrderedModels[i + 1][currentCriteria]
-        ) {
-          isCorrect = false;
-          break;
-        }
-      } else if (currentCriteria === "release") {
-        // For release date, newer is better (higher date value)
-        const date1 = new Date(userOrderedModels[i][currentCriteria]);
-        const date2 = new Date(userOrderedModels[i + 1][currentCriteria]);
-        if (date1 < date2) {
-          isCorrect = false;
-          break;
-        }
-      }
-    }
-
-    if (isCorrect) {
+    if (score === 1) {
       showResult("Congratulations! You got the order right!", "correct");
     } else {
       // Calculate accuracy score
-      const score = calculateOrderingScore(userOrderedModels, correctOrder);
       const percentage = Math.round(score * 100);
 
       // Create message with score
@@ -408,31 +375,28 @@ document.addEventListener("DOMContentLoaded", function () {
     let correctPairs = 0;
 
     // Compare each pair of models in the user's order
-    for (let i = 0; i < userOrder.length - 1; i++) {
+    for (let i = 0; i < userOrder.length; i++) {
+      const { name, element, lowerIndex, upperIndex } = userOrder[i];
+      const correctI = correctOrder.findIndex((model) => model.name === name);
+
       for (let j = i + 1; j < userOrder.length; j++) {
         totalPairs++;
 
-        // Find these models in the correct order
-        const userModelI = userOrder[i].name;
-        const userModelJ = userOrder[j].name;
-        const userCompanyI = userOrder[i].company;
-        const userCompanyJ = userOrder[j].company;
-
-        const correctIndexI = correctOrder.findIndex(
-          (model) => model.name === userModelI && model.company === userCompanyI
-        );
-        const correctIndexJ = correctOrder.findIndex(
-          (model) => model.name === userModelJ && model.company === userCompanyJ
+        const correctJ = correctOrder.findIndex(
+          (model) => model.name === userOrder[j].name
         );
 
         // Check if the relative ordering of this pair is correct
         if (
-          (i < j && correctIndexI < correctIndexJ) ||
-          (i > j && correctIndexI > correctIndexJ)
+          correctI < correctJ ||
+          correctOrder[correctI][currentCriteria] ===
+            correctOrder[correctJ][currentCriteria]
         ) {
           correctPairs++;
         }
       }
+
+      addDirectionIndicator(element, i, lowerIndex, upperIndex);
     }
 
     return totalPairs > 0 ? correctPairs / totalPairs : 0;
