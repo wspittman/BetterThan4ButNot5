@@ -70,11 +70,15 @@
           <div class="select-container">
             <label for="criteria-select">Target Criteria:</label>
             <select id="criteria-select" class="game-select">
-              <option value="release">Release Date (Newest First)</option>
-              <option value="cost">Input Cost (Cheapest First)</option>
-              <option value="arena">Arena Score (Highest First)</option>
+              <option value="release">Release Date</option>
+              <option value="cost">Input Cost</option>
+              <option value="arena">Arena Score</option>
             </select>
           </div>
+        </div>
+
+        <div id="criteria-details">
+          <!-- Criteria details here -->
         </div>
 
         <div id="models-list" class="models-list">
@@ -92,7 +96,7 @@
       </section>
 
       <section class="target-criteria-info">
-        <h2>Regarding Target Criteria</h2>
+        <h2>Acknowledgements</h2>
         <div>
           <p>
             The confusion doesn't stop at the model name. Models are updated
@@ -100,8 +104,7 @@
             preview periods long before they reach general availability.
           </p>
           <p>
-            Release Date and Cost intend to be for first day of API general
-            availability. The archives of
+            The archives of
             <a href="https://simonwillison.net/" target="_blank"
               >Simon Willison's Weblog</a
             >
@@ -111,7 +114,8 @@
               target="_blank"
               >LLM Prices</a
             >
-            were incredibly helpful in trying to find this information.
+            were incredibly helpful in trying to find release dates and price on
+            release.
           </p>
           <p>
             Arena Score is the

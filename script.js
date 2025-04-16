@@ -93,6 +93,7 @@ document.addEventListener("DOMContentLoaded", function () {
   const modelsList = document.getElementById("models-list");
   const checkButton = document.getElementById("check-btn");
   const toggleDataButton = document.getElementById("toggle-data-btn");
+  const criteriaDetails = document.getElementById("criteria-details");
   const resultMessage = document.getElementById("result-message");
   const companySelect = document.getElementById("company-select");
   const criteriaSelect = document.getElementById("criteria-select");
@@ -103,8 +104,19 @@ document.addEventListener("DOMContentLoaded", function () {
     resultMessage.innerHTML = "";
     resultMessage.className = "result-message hidden";
 
-    // Reset button
+    if (currentCriteria === "release") {
+      criteriaDetails.textContent =
+        "Order by the date the model became general availability in the API. The most recent release should be at the top.";
+    } else if (currentCriteria === "cost") {
+      criteriaDetails.textContent =
+        "Order by cost per million input tokens. The cheapest model should be at the top.";
+    } else if (currentCriteria === "arena") {
+      criteriaDetails.textContent =
+        "Order by LM Arena score (snapshot taken April 15, 2025). The highest score should be at the top.";
+    }
 
+    showModelDetails = true;
+    toggleModelDetails();
     gameModels = getPreppedModels(currentCompany, currentCriteria);
 
     // Shuffle model data for initial display
@@ -266,7 +278,7 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   // Add direction indicators to model items
-  function addDirectionIndicators(userOrderedModels, correctOrder) {
+  function addDirectionIndicators(correctOrder) {
     clearAllIndicators(); // Clear any existing indicators first
 
     const modelItems = [...modelsList.querySelectorAll(".model-item")];
@@ -343,7 +355,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const correctOrder = [...gameModels];
 
     // Add direction indicators to help the user
-    addDirectionIndicators(userOrderedModels, correctOrder);
+    addDirectionIndicators(correctOrder);
 
     // Check if models are in correct order
     let isCorrect = true;
