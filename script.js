@@ -103,6 +103,8 @@ document.addEventListener("DOMContentLoaded", function () {
     resultMessage.innerHTML = "";
     resultMessage.className = "result-message hidden";
 
+    // Reset button
+
     gameModels = getPreppedModels(currentCompany, currentCriteria);
 
     // Shuffle model data for initial display
@@ -218,7 +220,9 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
 
-  // #endreion
+  // #endregion
+
+  // #region Buttons and Selectors
 
   // Toggle showing model details
   function toggleModelDetails() {
@@ -226,16 +230,26 @@ document.addEventListener("DOMContentLoaded", function () {
 
     if (showModelDetails) {
       toggleDataButton.textContent = "Hide Data";
-      document.querySelectorAll(".model-item").forEach((item) => {
-        item.classList.add("show-details");
-      });
+      modelsList.classList.add("show-details");
     } else {
       toggleDataButton.textContent = "Show Data";
-      document.querySelectorAll(".model-item").forEach((item) => {
-        item.classList.remove("show-details");
-      });
+      modelsList.classList.remove("show-details");
     }
   }
+
+  // Event Listeners
+  checkButton.addEventListener("click", checkOrder);
+  toggleDataButton.addEventListener("click", toggleModelDetails);
+  companySelect.addEventListener("change", function () {
+    currentCompany = this.value;
+    initGame();
+  });
+  criteriaSelect.addEventListener("change", function () {
+    currentCriteria = this.value;
+    initGame();
+  });
+
+  // #endregion
 
   // Clear all direction indicators
   function clearAllIndicators() {
@@ -414,32 +428,6 @@ document.addEventListener("DOMContentLoaded", function () {
     resultMessage.textContent = message;
     resultMessage.className = `result-message ${type}`;
   }
-
-  // Event Listeners
-  checkButton.addEventListener("click", checkOrder);
-  toggleDataButton.addEventListener("click", toggleModelDetails);
-
-  // Add event listeners to the dropdown selectors
-  criteriaSelect.addEventListener("change", function () {
-    const previousCriteria = currentCriteria;
-    currentCriteria = this.value;
-
-    // Hide any previous result when changing criteria
-    resultMessage.className = "result-message hidden";
-
-    // Reinitialize if changing to or from arena (since available models may change)
-    if (previousCriteria === "arena" || currentCriteria === "arena") {
-      initGame();
-    }
-  });
-
-  companySelect.addEventListener("change", function () {
-    currentCompany = this.value;
-    // Reset the game when changing company
-    initGame();
-    // Hide any previous result
-    resultMessage.className = "result-message hidden";
-  });
 
   // Initialize game on load
   initGame();
