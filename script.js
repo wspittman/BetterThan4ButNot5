@@ -17,6 +17,7 @@ function toModelObject([name, release, cost, arena], company) {
     release,
     cost,
     arena,
+    releaseText: new Date(release).toLocaleDateString(),
     costText: formatCost(cost),
     arenaText: arena > 0 ? arena.toString() : "N/A",
   };
@@ -96,18 +97,13 @@ document.addEventListener("DOMContentLoaded", function () {
   const companySelect = document.getElementById("company-select");
   const criteriaSelect = document.getElementById("criteria-select");
 
-  // Initialize the game
   function initGame() {
     // Clear container
     modelsList.innerHTML = "";
     resultMessage.innerHTML = "";
     resultMessage.className = "result-message hidden";
 
-    // Get models using getPreppedModels
-    gameModels = getPreppedModels(
-      currentCompany !== "all" ? currentCompany : null,
-      currentCriteria
-    );
+    gameModels = getPreppedModels(currentCompany, currentCriteria);
 
     // Shuffle model data for initial display
     const shuffledModels = [...gameModels].sort(() => Math.random() - 0.5);
@@ -130,7 +126,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // Create the model name element
     const nameElement = document.createElement("div");
-    nameElement.className = "model-name";
     nameElement.textContent = model.name;
     modelElement.appendChild(nameElement);
 
@@ -140,9 +135,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // Add release date
     const releaseElement = document.createElement("p");
-    releaseElement.textContent = `Release: ${new Date(
-      model.release
-    ).toLocaleDateString()}`;
+    releaseElement.textContent = `Release: ${model.releaseText}`;
     detailsElement.appendChild(releaseElement);
 
     // Add cost

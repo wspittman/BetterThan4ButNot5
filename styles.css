@@ -98,7 +98,6 @@
   left: 10px;
   top: 50%;
   transform: translateY(-50%);
-  opacity: 0.7;
 }
 
 .model-item:hover {
@@ -169,8 +168,14 @@
   display: none;
 }
 
+.model-details p {
+  margin: 0.5rem 0;
+}
+
 .show-details .model-details {
-  display: block;
+  display: flex;
+  justify-content: center;
+  gap: 15px;
 }
 
 /* Result Message */
