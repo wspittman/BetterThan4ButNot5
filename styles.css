@@ -1,3 +1,39 @@
+:root {
+  .anthropic {
+    background-color: #00a896;
+    color: #ffffff;
+  }
+
+  .google {
+    background-color: #4285f4;
+    color: #ffffff;
+  }
+
+  .openai {
+    background-color: #6e56cf;
+    color: #ffffff;
+  }
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    .anthropic {
+      background-color: #00d9c0;
+      color: #000000;
+    }
+
+    .google {
+      background-color: #8ab4f8;
+      color: #000000;
+    }
+
+    .openai {
+      background-color: #b39ddb;
+      color: #000000;
+    }
+  }
+}
+
 .container {
   border-radius: 10px;
   border: 2px solid;
@@ -70,18 +106,6 @@
   box-shadow: 0 6px 10px;
 }
 
-.model-item.openai {
-  background-color: #10a37f; /* OpenAI green */
-}
-
-.model-item.anthropic {
-  background-color: #9b59b6; /* Purple for Anthropic */
-}
-
-.model-item.google {
-  background-color: #3498db; /* Blue for Google */
-}
-
 /* Drag placeholder for mobile */
 .drag-placeholder {
   background-color: rgba(52, 152, 219, 0.1);
@@ -115,31 +139,12 @@
   transition: all 0.3s;
 }
 
-#check-btn {
-  background-color: #2ecc71;
-  color: white;
-}
-
-#check-btn:hover {
-  background-color: #27ae60;
-}
-
 #reset-btn {
   background-color: #e74c3c;
-  color: white;
 }
 
 #reset-btn:hover {
   background-color: #c0392b;
-}
-
-#toggle-data-btn {
-  background-color: #f39c12;
-  color: white;
-}
-
-#toggle-data-btn:hover {
-  background-color: #d68910;
 }
 
 /* Model Details */
