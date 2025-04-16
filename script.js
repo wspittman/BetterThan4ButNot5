@@ -114,8 +114,7 @@ document.addEventListener("DOMContentLoaded", function () {
       modelsList.appendChild(modelElement);
     });
 
-    // Set up drag and drop
-    setupDragAndDrop();
+    setupDragging();
   }
 
   // Create a model element
@@ -155,11 +154,71 @@ document.addEventListener("DOMContentLoaded", function () {
     modelElement.dataset.name = model.name;
     modelElement.dataset.company = model.company;
 
-    // Add touch events for mobile
-    addTouchEvents(modelElement);
-
     return modelElement;
   }
+
+  // #region Dragging
+
+  function setupDragging() {
+    function removeDragOver() {
+      modelsList.classList.remove("drag-over");
+    }
+    function startDrag(draggable) {
+      draggable.classList.add("dragging");
+    }
+    function endDrag(draggable) {
+      draggable.classList.remove("dragging");
+      removeDragOver();
+    }
+    function performDrag(clientY) {
+      modelsList.classList.add("drag-over");
+      const dragging = document.querySelector(".dragging");
+      const afterElement = getVerticalDragAfterElement(modelsList, clientY);
+
+      if (afterElement && afterElement.previousElementSibling === dragging) {
+        return;
+      }
+
+      if (afterElement) {
+        modelsList.insertBefore(dragging, afterElement);
+      } else {
+        modelsList.appendChild(dragging);
+      }
+    }
+
+    modelsList.addEventListener("dragstart", (e) => startDrag(e.target));
+    modelsList.addEventListener("dragend", (e) => endDrag(e.target));
+
+    modelsList.addEventListener("dragover", (e) => {
+      e.preventDefault();
+      performDrag(e.clientY);
+    });
+
+    modelsList.addEventListener("dragleave", removeDragOver);
+    modelsList.addEventListener("drop", removeDragOver);
+
+    modelsList.addEventListener("touchstart", (e) => {
+      const target = e.target.closest(".model-item");
+      if (target) {
+        startDrag(target);
+      }
+    });
+    modelsList.addEventListener("touchmove", (e) => {
+      e.preventDefault(); // Prevent scrolling
+      const target = e.target.closest(".model-item");
+      if (target) {
+        performDrag(e.touches[0].clientY);
+      }
+    });
+    modelsList.addEventListener("touchend", (e) => {
+      const target = e.target.closest(".model-item");
+      if (target) {
+        endDrag(target);
+      }
+    });
+  }
+
+  // #endreion
 
   // Toggle showing model details
   function toggleModelDetails() {
@@ -176,71 +235,6 @@ document.addEventListener("DOMContentLoaded", function () {
         item.classList.remove("show-details");
       });
     }
-  }
-
-  // Set up drag and drop functionality
-  function setupDragAndDrop() {
-    const draggables = document.querySelectorAll(".model-item");
-
-    draggables.forEach((draggable) => {
-      draggable.addEventListener("dragstart", () => {
-        draggable.classList.add("dragging");
-        // Clear only this element's indicator
-        const indicator = draggable.querySelector(".indicator");
-        if (indicator) {
-          indicator.remove();
-        }
-      });
-
-      draggable.addEventListener("dragend", () => {
-        draggable.classList.remove("dragging");
-        modelsList.classList.remove("drag-over");
-      });
-    });
-
-    modelsList.addEventListener("dragover", (e) => {
-      e.preventDefault();
-      modelsList.classList.add("drag-over");
-      const dragging = document.querySelector(".dragging");
-      const afterElement = getVerticalDragAfterElement(modelsList, e.clientY);
-
-      // Determine if we're going to switch with another element
-      if (afterElement && afterElement.previousElementSibling === dragging) {
-        // Not actually moving to a new position
-        return;
-      }
-
-      // Clear indicator on the element we're going to replace/switch with
-      if (afterElement && afterElement.previousElementSibling !== dragging) {
-        const indicator = afterElement.querySelector(".indicator");
-        if (indicator) {
-          indicator.remove();
-        }
-      } else if (!afterElement && modelsList.lastElementChild !== dragging) {
-        // Moving to the last position
-        const lastElement = modelsList.lastElementChild;
-        if (lastElement) {
-          const indicator = lastElement.querySelector(".indicator");
-          if (indicator) {
-            indicator.remove();
-          }
-        }
-      }
-
-      if (afterElement) {
-        modelsList.insertBefore(dragging, afterElement);
-      } else {
-        modelsList.appendChild(dragging);
-      }
-    });
-
-    modelsList.addEventListener("dragleave", () => {
-      modelsList.classList.remove("drag-over");
-    });
-
-    modelsList.addEventListener("drop", () => {
-      modelsList.classList.remove("drag-over");
-    });
   }
 
   // Clear all direction indicators
@@ -284,152 +278,6 @@ document.addEventListener("DOMContentLoaded", function () {
       // Add the indicator to the model item
       item.appendChild(indicator);
     });
-  }
-
-  // Add touch events for mobile devices
-  function addTouchEvents(element) {
-    let touchStartY = 0;
-    let currentTouchY = 0;
-    let isDragging = false;
-    let draggedElement = null;
-    let placeholder = null;
-
-    // Create a placeholder element to show where the dragged item will be placed
-    function createPlaceholder(height) {
-      const el = document.createElement("div");
-      el.classList.add("drag-placeholder");
-      el.style.height = height + "px";
-      el.style.transition = "all 0.2s";
-      return el;
-    }
-
-    // Handle touch start
-    element.addEventListener(
-      "touchstart",
-      function (e) {
-        e.preventDefault(); // Prevent scrolling
-
-        // Clear only this element's indicator
-        const indicator = this.querySelector(".indicator");
-        if (indicator) {
-          indicator.remove();
-        }
-
-        // Set initial position
-        touchStartY = e.touches[0].clientY;
-        isDragging = true;
-        draggedElement = this;
-
-        // Create visual feedback
-        this.classList.add("dragging");
-
-        // Create placeholder with same height as the element
-        const rect = this.getBoundingClientRect();
-        placeholder = createPlaceholder(rect.height);
-
-        // Position the element absolutely to move it around
-        this.style.position = "absolute";
-        this.style.zIndex = 1000;
-        this.style.width = rect.width + "px";
-
-        // Insert placeholder where the element was
-        modelsList.insertBefore(placeholder, this);
-
-        // Position the dragged element
-        updateElementPosition(e.touches[0].clientY);
-      },
-      { passive: false }
-    );
-
-    // Handle touch move
-    element.addEventListener(
-      "touchmove",
-      function (e) {
-        e.preventDefault(); // Prevent scrolling
-
-        if (!isDragging) return;
-
-        currentTouchY = e.touches[0].clientY;
-        updateElementPosition(currentTouchY);
-
-        // Find the element we're hovering over
-        const afterElement = getVerticalDragAfterElement(
-          modelsList,
-          currentTouchY
-        );
-
-        // Check if we need to clear indicators on elements being displaced
-        if (placeholder && placeholder.nextElementSibling !== afterElement) {
-          // We're changing position, clear indicator on affected element
-          if (afterElement) {
-            const indicator = afterElement.querySelector(".indicator");
-            if (indicator) {
-              indicator.remove();
-            }
-          } else if (modelsList.lastElementChild !== placeholder) {
-            // Moving to the end
-            const lastElement = modelsList.lastElementChild;
-            if (lastElement && lastElement !== draggedElement) {
-              const indicator = lastElement.querySelector(".indicator");
-              if (indicator) {
-                indicator.remove();
-              }
-            }
-          }
-        }
-
-        // Move the placeholder to show where the element will be inserted
-        if (afterElement) {
-          modelsList.insertBefore(placeholder, afterElement);
-        } else {
-          modelsList.appendChild(placeholder);
-        }
-      },
-      { passive: false }
-    );
-
-    // Handle touch end
-    element.addEventListener("touchend", function (e) {
-      if (!isDragging) return;
-
-      // Reset the element's style
-      this.style.position = "";
-      this.style.top = "";
-      this.style.left = "";
-      this.style.width = "";
-      this.style.zIndex = "";
-      this.classList.remove("dragging");
-
-      // Replace placeholder with the actual element
-      if (placeholder && placeholder.parentNode) {
-        modelsList.insertBefore(this, placeholder);
-        placeholder.parentNode.removeChild(placeholder);
-      }
-
-      // Reset variables
-      isDragging = false;
-      draggedElement = null;
-      placeholder = null;
-    });
-
-    // Update the position of the dragged element
-    function updateElementPosition(y) {
-      if (!draggedElement) return;
-
-      // Calculate new position
-      const rect = modelsList.getBoundingClientRect();
-      const offsetY = y - rect.top;
-
-      // Keep the element within the container bounds
-      const adjustedY = Math.max(
-        0,
-        Math.min(offsetY, rect.height - draggedElement.offsetHeight)
-      );
-
-      // Update position
-      draggedElement.style.top = rect.top + adjustedY + "px";
-      draggedElement.style.left = rect.left + "px";
-    }
   }
 
   // Get element to insert before when dragging (vertical ordering)
