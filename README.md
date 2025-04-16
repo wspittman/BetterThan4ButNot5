@@ -1,69 +1,44 @@
-# BetterThan4ButNot5: LLM Model Sorting Game
+# Better Than 4 But Not 5
 
-A humorous web-based game that challenges players to sort AI language model names in the correct order based on different criteria. This project highlights the confusion caused by inconsistent naming conventions in the AI industry.
+An LLM model sorting game.
 
-## About the Project
-
-"Model Name Mayhem" is a fun, interactive game where users drag and drop AI model names into the correct order based on different criteria:
-
-- **Release Date Order**: Sort models from earliest to latest release
-- **Performance Order**: Sort models from lowest to highest performance
-- **Confusion Factor**: Sort models from least to most confusing naming convention
-
-The game demonstrates how difficult it can be to understand the relative positioning of models like "GPT-4", "GPT-4o", "GPT-4 Turbo", "GPT-5 Preview", etc. based on their names alone.
+Players are challenged to sort model names based on different criteria. The game seeks to demonstrate how difficult it can be to understand the relative positioning of models like "GPT-4.5", "GPT-4.1", "GPT-4o" etc. based on their names alone.
 
 ## Play Online
 
-This game is hosted on GitHub Pages at: [https://yourusername.github.io/BetterThan4ButNot5](https://yourusername.github.io/BetterThan4ButNot5)
+This game is hosted on GitHub Pages at: [https://wspittman.github.io/BetterThan4ButNot5](https://wspittman.github.io/BetterThan4ButNot5)
 
-## How to Play
+1. Choose a company filter: All Companies, Anthropic, Google, OpenAI
+2. Choose a sorting criterion (Release Date, Input Cost, or Arena Score)
 
-1. Choose a sorting criterion (Release Date, Performance, or Confusion Factor)
-2. Drag the model names from the top container and drop them in the bottom container in what you think is the correct order
-3. Click "Check Order" to see if you got it right
-4. Click "Reset" to try again
+- **Release Date**: Sort models from newest to oldest release (first day of API general availability)
+- **Input Cost**: Sort models from cheapest to most expensive (at time of release)
+- **Arena Score**: Sort models from highest to lowest performance (as of last pull on April 15, 2025)
 
-## Features
-
-- Drag-and-drop interface for arranging models
-- Multiple sorting criteria to test your knowledge
-- Fun facts about AI model naming conventions
-- Responsive design that works on desktop and mobile devices
+3. Drag the model names into the correct order
+4. Click "Check Order" to see if you got it right
 
 ## Running Locally
 
 Simply clone this repository and open `index.html` in your web browser:
 
 ```
-git clone https://github.com/yourusername/BetterThan4ButNot5.git
+git clone https://github.com/wspittman/BetterThan4ButNot5.git
 cd BetterThan4ButNot5
 ```
 
-No build tools or server setup required!
-
-## Technologies Used
-
-- HTML5
-- CSS3
-- Vanilla JavaScript
-- HTML5 Drag and Drop API
-
-## License
-
-This project is licensed under the terms included in the LICENSE file.
+No build tools or server setup required.
 
 ## Contributing
 
-Contributions, issues, and feature requests are welcome! Feel free to check the issues page to see if there's anything you'd like to work on.
+This was a vibe-coding project, so the code is messy and I don't intend to put a ton of time into it.
 
-Some ideas for contributions:
+Contributions, issues, and feature requests are still welcome. Especially for adding more model data or improving the UI.
 
-- Add more AI models to the dataset
-- Create additional sorting criteria
-- Add a timer or scoring system
-- Implement difficulty levels
+If you disagree with the sorting criteria (eg. release date or cost on release for a specific model), please open an issue and cite a source for why the number I picked was wrong.
 
 ## Acknowledgments
 
 - Inspired by the often confusing naming conventions in the AI industry
-- Created for educational and entertainment purposes
+- The archives of [Simon Willison's Weblog](https://simonwillison.net/) and the history of his [LLM Prices](https://github.com/simonw/tools/commits/main/llm-prices.html) tool were invaluable for gathering release and cost data.
+- LMArena Scores came from the [LMArena Leaderboard](https://lmarena.ai/?leaderboard), obvs.
