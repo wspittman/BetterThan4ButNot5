@@ -154,7 +154,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // Set data attributes
     modelElement.dataset.name = model.name;
-    modelElement.dataset.company = model.company;
 
     return modelElement;
   }
@@ -165,8 +164,15 @@ document.addEventListener("DOMContentLoaded", function () {
     function removeDragOver() {
       modelsList.classList.remove("drag-over");
     }
+    function removeIndicator(draggable) {
+      const indicator = draggable.querySelector(".indicator");
+      if (indicator) {
+        indicator.remove();
+      }
+    }
     function startDrag(draggable) {
       draggable.classList.add("dragging");
+      removeIndicator(draggable);
     }
     function endDrag(draggable) {
       draggable.classList.remove("dragging");
@@ -182,6 +188,7 @@ document.addEventListener("DOMContentLoaded", function () {
       }
 
       if (afterElement) {
+        removeIndicator(afterElement);
         modelsList.insertBefore(dragging, afterElement);
       } else {
         modelsList.appendChild(dragging);
@@ -266,11 +273,10 @@ document.addEventListener("DOMContentLoaded", function () {
 
     modelItems.forEach((item, index) => {
       const modelName = item.dataset.name;
-      const modelCompany = item.dataset.company;
 
       // Find the correct position for this model
       const correctIndex = correctOrder.findIndex(
-        (model) => model.name === modelName && model.company === modelCompany
+        (model) => model.name === modelName
       );
 
       // Create indicator element
@@ -329,10 +335,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     const userOrderedModels = modelItems.map((item) => {
       const modelName = item.dataset.name;
-      const modelCompany = item.dataset.company;
-      return gameModels.find(
-        (model) => model.name === modelName && model.company === modelCompany
-      );
+      return gameModels.find((model) => model.name === modelName);
     });
 
     // The correct order is already in gameModels, since getPreppedModels sorts them
