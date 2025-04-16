@@ -1,7 +1,25 @@
 // #region model sets
 
+function formatCost(cost) {
+  let str = cost.toString();
+  const [, decimals] = str.split(".");
+  if (!decimals || decimals.length < 3) {
+    str = cost.toFixed(2);
+  }
+
+  return "$" + str + "/M tokens";
+}
+
 function toModelObject([name, release, cost, arena], company) {
-  return { name, company, release, cost, arena };
+  return {
+    name,
+    company,
+    release,
+    cost,
+    arena,
+    costText: formatCost(cost),
+    arenaText: arena > 0 ? arena.toString() : "N/A",
+  };
 }
 
 // Model arrays: [Name, Release Date, $/M input cost, LM Arena Score as of 4/15/2025]
@@ -69,7 +87,7 @@ document.addEventListener("DOMContentLoaded", function () {
   let currentCriteria = "release";
   let currentCompany = "all";
   let showModelDetails = false;
-  let gameModels = []; // Store the current sorted models
+  let gameModels = [];
 
   const modelsList = document.getElementById("models-list");
   const checkButton = document.getElementById("check-btn");
@@ -77,22 +95,6 @@ document.addEventListener("DOMContentLoaded", function () {
   const resultMessage = document.getElementById("result-message");
   const companySelect = document.getElementById("company-select");
   const criteriaSelect = document.getElementById("criteria-select");
-
-  // Format cost to be more readable
-  function formatCost(cost) {
-    if (cost === 0) {
-      return "N/A";
-    } else if (cost < 0.01) {
-      return "$" + cost.toFixed(4) + "/M tokens";
-    } else {
-      return "$" + cost.toFixed(2) + "/M tokens";
-    }
-  }
-
-  // Format arena score to be more readable
-  function formatArenaScore(score) {
-    return score > 0 ? score.toString() : "N/A";
-  }
 
   // Initialize the game
   function initGame() {
@@ -145,12 +147,12 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // Add cost
     const costElement = document.createElement("p");
-    costElement.textContent = `Cost: ${formatCost(model.cost)}`;
+    costElement.textContent = `Cost: ${model.costText}`;
     detailsElement.appendChild(costElement);
 
     // Add arena score
     const arenaElement = document.createElement("p");
-    arenaElement.textContent = `Arena Score: ${formatArenaScore(model.arena)}`;
+    arenaElement.textContent = `Arena Score: ${model.arenaText}`;
     detailsElement.appendChild(arenaElement);
 
     // Add details to model element
