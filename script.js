@@ -1,4 +1,8 @@
 document.addEventListener("DOMContentLoaded", function () {
+  function toModelObject([name, release, cost, arena], company) {
+    return { name, company, release, cost, arena };
+  }
+
   // Model arrays: [Name, Release Date, $/M input cost, LM Arena Score as of 4/15/2025]
   const modelsOpenAI = [
     ["GPT-3.5 Turbo", "2023-03-01", 2, 1068],
@@ -14,7 +18,7 @@ document.addEventListener("DOMContentLoaded", function () {
     ["GPT-4.1 Nano", "2025-04-14", 0.1, 0],
     ["GPT-4.1 Mini", "2025-04-14", 0.4, 0],
     ["GPT-4.1", "2025-04-14", 2, 0],
-  ];
+  ].map((m) => toModelObject(m, "openai"));
 
   const modelsGoogle = [
     ["Gemini 1.5 Pro", "2024-04-10", 7, 1260],
@@ -22,7 +26,7 @@ document.addEventListener("DOMContentLoaded", function () {
     ["Gemini 2.0 Flash", "2025-02-05", 0.1, 1354],
     ["Gemini 2.0 Flash Lite", "2025-02-25", 0.075, 1310],
     ["Gemini 2.5 Pro Preview", "2025-03-25", 1.25, 1380],
-  ];
+  ].map((m) => toModelObject(m, "google"));
 
   const modelsAnthropic = [
     ["Claude 2.1", "2023-11-21", 8, 0],
@@ -32,7 +36,7 @@ document.addEventListener("DOMContentLoaded", function () {
     ["Claude 3.5 Sonnet", "2024-06-20", 3, 1268],
     ["Claude 3.5 Haiku", "2024-11-04", 1, 1237],
     ["Claude 3.7 Sonnet", "2025-02-24", 3, 1297],
-  ];
+  ].map((m) => toModelObject(m, "anthropic"));
 
   let currentCriteria = "release";
   let currentCompany = "all";
@@ -46,54 +50,18 @@ document.addEventListener("DOMContentLoaded", function () {
   const companySelect = document.getElementById("company-select");
   const criteriaSelect = document.getElementById("criteria-select");
 
-  // Get all models formatted in a consistent way
-  function getAllModels() {
-    const allModels = [
-      ...modelsOpenAI.map((model) => ({
-        name: model[0],
-        company: "openai",
-        release: model[1],
-        cost: model[2],
-        arena: model[3],
-      })),
-      ...modelsGoogle.map((model) => ({
-        name: model[0],
-        company: "google",
-        release: model[1],
-        cost: model[2],
-        arena: model[3],
-      })),
-      ...modelsAnthropic.map((model) => ({
-        name: model[0],
-        company: "anthropic",
-        release: model[1],
-        cost: model[2],
-        arena: model[3],
-      })),
-    ];
-
-    return allModels;
-  }
-
   // Filter models based on selected company
   function getFilteredModels() {
-    const allModels = getAllModels();
-
-    if (currentCompany === "all") {
-      return allModels;
-    } else {
-      return allModels.filter((model) => model.company === currentCompany);
+    switch (currentCompany) {
+      case "openai":
+        return modelsOpenAI;
+      case "google":
+        return modelsGoogle;
+      case "anthropic":
+        return modelsAnthropic;
+      default:
+        return [...modelsOpenAI, ...modelsGoogle, ...modelsAnthropic];
     }
-  }
-
-  // Format date to be more readable
-  function formatDate(dateString) {
-    const date = new Date(dateString);
-    return date.toLocaleDateString("en-US", {
-      year: "numeric",
-      month: "short",
-      day: "numeric",
-    });
   }
 
   // Format cost to be more readable
@@ -153,7 +121,9 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // Add release date
     const releaseElement = document.createElement("p");
-    releaseElement.textContent = `Release: ${formatDate(model.release)}`;
+    releaseElement.textContent = `Release: ${new Date(
+      model.release
+    ).toLocaleDateString()}`;
     detailsElement.appendChild(releaseElement);
 
     // Add cost
