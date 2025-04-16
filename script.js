@@ -172,6 +172,11 @@ document.addEventListener("DOMContentLoaded", function () {
     draggables.forEach((draggable) => {
       draggable.addEventListener("dragstart", () => {
         draggable.classList.add("dragging");
+        // Clear only this element's indicator
+        const indicator = draggable.querySelector(".indicator");
+        if (indicator) {
+          indicator.remove();
+        }
       });
 
       draggable.addEventListener("dragend", () => {
@@ -186,6 +191,29 @@ document.addEventListener("DOMContentLoaded", function () {
       const dragging = document.querySelector(".dragging");
       const afterElement = getVerticalDragAfterElement(modelsList, e.clientY);
 
+      // Determine if we're going to switch with another element
+      if (afterElement && afterElement.previousElementSibling === dragging) {
+        // Not actually moving to a new position
+        return;
+      }
+
+      // Clear indicator on the element we're going to replace/switch with
+      if (afterElement && afterElement.previousElementSibling !== dragging) {
+        const indicator = afterElement.querySelector(".indicator");
+        if (indicator) {
+          indicator.remove();
+        }
+      } else if (!afterElement && modelsList.lastElementChild !== dragging) {
+        // Moving to the last position
+        const lastElement = modelsList.lastElementChild;
+        if (lastElement) {
+          const indicator = lastElement.querySelector(".indicator");
+          if (indicator) {
+            indicator.remove();
+          }
+        }
+      }
+
       if (afterElement) {
         modelsList.insertBefore(dragging, afterElement);
       } else {
@@ -199,6 +227,49 @@ document.addEventListener("DOMContentLoaded", function () {
 
     modelsList.addEventListener("drop", () => {
       modelsList.classList.remove("drag-over");
+    });
+  }
+
+  // Clear all direction indicators
+  function clearAllIndicators() {
+    document.querySelectorAll(".indicator").forEach((indicator) => {
+      indicator.remove();
+    });
+  }
+
+  // Add direction indicators to model items
+  function addDirectionIndicators(userOrderedModels, correctOrder) {
+    clearAllIndicators(); // Clear any existing indicators first
+
+    const modelItems = [...modelsList.querySelectorAll(".model-item")];
+
+    modelItems.forEach((item, index) => {
+      const modelName = item.dataset.name;
+      const modelCompany = item.dataset.company;
+
+      // Find the correct position for this model
+      const correctIndex = correctOrder.findIndex(
+        (model) => model.name === modelName && model.company === modelCompany
+      );
+
+      // Create indicator element
+      const indicator = document.createElement("div");
+      indicator.className = "indicator";
+
+      // Determine if the model should move up, down, or is in the correct position
+      if (correctIndex < index) {
+        indicator.textContent = "↑"; // Should move up
+        indicator.classList.add("up");
+      } else if (correctIndex > index) {
+        indicator.textContent = "↓"; // Should move down
+        indicator.classList.add("down");
+      } else {
+        indicator.textContent = "✓"; // Correct position
+        indicator.classList.add("correct");
+      }
+
+      // Add the indicator to the model item
+      item.appendChild(indicator);
     });
   }
 
@@ -224,6 +295,12 @@ document.addEventListener("DOMContentLoaded", function () {
       "touchstart",
       function (e) {
         e.preventDefault(); // Prevent scrolling
+
+        // Clear only this element's indicator
+        const indicator = this.querySelector(".indicator");
+        if (indicator) {
+          indicator.remove();
+        }
 
         // Set initial position
         touchStartY = e.touches[0].clientY;
@@ -267,6 +344,26 @@ document.addEventListener("DOMContentLoaded", function () {
           modelsList,
           currentTouchY
         );
+
+        // Check if we need to clear indicators on elements being displaced
+        if (placeholder && placeholder.nextElementSibling !== afterElement) {
+          // We're changing position, clear indicator on affected element
+          if (afterElement) {
+            const indicator = afterElement.querySelector(".indicator");
+            if (indicator) {
+              indicator.remove();
+            }
+          } else if (modelsList.lastElementChild !== placeholder) {
+            // Moving to the end
+            const lastElement = modelsList.lastElementChild;
+            if (lastElement && lastElement !== draggedElement) {
+              const indicator = lastElement.querySelector(".indicator");
+              if (indicator) {
+                indicator.remove();
+              }
+            }
+          }
+        }
 
         // Move the placeholder to show where the element will be inserted
         if (afterElement) {
@@ -350,7 +447,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     if (modelItems.length < filteredModels.length) {
       showResult(
-        "Something went wrong. Please click Reset and try again.",
+        "Something went wrong. Please refresh and try again.",
         "incorrect"
       );
       return;
@@ -384,6 +481,9 @@ document.addEventListener("DOMContentLoaded", function () {
         (a, b) => new Date(b[currentCriteria]) - new Date(a[currentCriteria])
       );
     }
+
+    // Add direction indicators to help the user
+    addDirectionIndicators(userOrderedModels, correctOrder);
 
     // Check if models are in correct order
     let isCorrect = true;
