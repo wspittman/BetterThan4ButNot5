@@ -8,7 +8,7 @@ Players are challenged to sort model names based on different criteria. The game
 
 This game is hosted on GitHub Pages at: [https://wspittman.github.io/BetterThan4ButNot5](https://wspittman.github.io/BetterThan4ButNot5)
 
-1. Choose a company filter: All Companies, Anthropic, Google, OpenAI
+1. Choose a model set: Random 10, All Models, Anthropic, Google, OpenAI
 2. Choose a sorting criterion (Release Date, Input Cost, or Arena Score)
 
 - **Release Date**: Sort models from newest to oldest release (first day of API general availability)

@@ -70,6 +70,11 @@ function getPreppedModels(company, criteria) {
   // This also shallow copies so the sorts don't affect the original
   models = models.filter((model) => !!model[criteria]);
 
+  if (company === "10") {
+    models.sort(() => Math.random() - 0.5);
+    models = models.slice(0, 10);
+  }
+
   if (criteria === "release") {
     // For release date, newer is better (higher date value)
     models.sort((a, b) => new Date(b.release) - new Date(a.release));
@@ -101,7 +106,7 @@ function getPreppedModels(company, criteria) {
 
 document.addEventListener("DOMContentLoaded", function () {
   let currentCriteria = "release";
-  let currentCompany = "all";
+  let currentCompany = "10";
   let showModelDetails = false;
   let gameModels = [];
 
